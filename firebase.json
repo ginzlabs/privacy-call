@@ -1,0 +1,28 @@
+{
+  "firestore": {
+    "rules": "firestore.rules"
+  },
+  "functions": [
+    {
+      "source": "functions",
+      "codebase": "default",
+      "ignore": [
+        "node_modules",
+        ".git",
+        "firebase-debug.log",
+        "firebase-debug.*.log",
+        "*.local"
+      ],
+      "predeploy": [
+        "npm --prefix \"$RESOURCE_DIR\" run lint",
+        "npm --prefix \"$RESOURCE_DIR\" run build"
+      ],
+      "runtime": "nodejs20"
+    }
+  ],
+  "react-native": {
+    "messaging_android_notification_channel_id": "incoming_calls",
+    "messaging_android_headless_task_timeout": 60000,
+    "messaging_android_notification_delegation_enabled": false
+  }
+}

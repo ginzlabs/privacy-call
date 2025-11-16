@@ -1,0 +1,75 @@
+{
+  "expo": {
+    "name": "PrivacyCall",
+    "slug": "privacycall",
+    "version": "1.0.0",
+    "sdkVersion": "51.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "light",
+    "splash": {
+      "image": "./assets/splash.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#667eea"
+    },
+    "updates": {
+      "enabled": false
+    },
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.yourcompany.privacycall",
+      "googleServicesFile": "./ios/GoogleService-Info.plist",
+      "backgroundModes": ["audio", "voip"],
+      "infoPlist": {
+        "NSMicrophoneUsageDescription": "This app needs microphone access for audio calls.",
+        "NSCameraUsageDescription": "This app needs camera access for QR code scanning.",
+        "NSUserNotificationsUsageDescription": "This app needs notification access to alert you of incoming calls.",
+        "UIBackgroundModes": ["audio", "voip"],
+        "AVAudioSessionCategory": "AVAudioSessionCategoryPlayAndRecord",
+        "AVAudioSessionMode": "AVAudioSessionModeVoiceChat"
+      }
+    },
+    "android": {
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/adaptive-icon.png",
+        "backgroundColor": "#ffffff"
+      },
+      "package": "com.yourcompany.privacycall",
+      "googleServicesFile": "./android/app/google-services.json",
+      "permissions": [
+        "android.permission.RECORD_AUDIO",
+        "android.permission.CAMERA",
+        "android.permission.MODIFY_AUDIO_SETTINGS",
+        "android.permission.INTERNET",
+        "android.permission.ACCESS_NETWORK_STATE",
+        "android.permission.WAKE_LOCK",
+        "android.permission.POST_NOTIFICATIONS",
+        "android.permission.VIBRATE",
+        "android.permission.FOREGROUND_SERVICE",
+        "android.permission.FOREGROUND_SERVICE_MICROPHONE"
+      ]
+    },
+    "web": {
+      "favicon": "./assets/favicon.png"
+    },
+    "extra": {
+      "eas": {
+        "projectId": "YOUR_EAS_PROJECT_ID_FROM_EAS_INIT"
+      }
+    },
+    "owner": "YOUR_EXPO_USERNAME",
+    "plugins": [
+      "@react-native-firebase/app",
+      "@livekit/react-native-expo-plugin",
+      "@config-plugins/react-native-webrtc",
+      [
+        "expo-build-properties",
+        {
+          "ios": {
+            "useFrameworks": "static"
+          }
+        }
+      ]
+    ]
+  }
+}

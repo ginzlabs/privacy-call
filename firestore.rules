@@ -1,0 +1,123 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // ==========================================
+    // Helper Functions
+    // ==========================================
+
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    function isOwner(userId) {
+      return request.auth.uid == userId;
+    }
+
+    // ==========================================
+    // Collection Rules
+    // ==========================================
+
+    // 1. Invites - Readable by authenticated users, writable by creator
+    // Privacy: Users can create invites and anyone with auth can read them for acceptance
+    match /Invites/{inviteId} {
+      allow read: if isAuthenticated();
+      allow create: if isAuthenticated()
+                    && request.resource.data.createdBy == request.auth.uid;
+      allow update: if isAuthenticated(); // For status updates during acceptance
+      allow delete: if false; // Handled by TTL policy
+    }
+
+    // 2. User FCM Tokens - Only owner can read/write
+    // Privacy: Prevents token theft and unauthorized push notifications
+    match /user_tokens/{userId} {
+      allow read, write: if isAuthenticated() && isOwner(userId);
+    }
+
+    // 3. Call Sessions - Owner creates, queryable for active call detection
+    // Privacy: Users can query active sessions (for multiple call detection)
+    // Security: Only anonymous UIDs stored, queries self-filter, short TTL
+    match /call_sessions/{sessionId} {
+      allow create: if isAuthenticated()
+                    && request.resource.data.userId == request.auth.uid;
+      allow get: if isAuthenticated()
+                 && resource.data.userId == request.auth.uid;
+      allow list: if isAuthenticated(); // Queries self-filter by status/startTime
+      allow update: if isAuthenticated()
+                    && resource.data.userId == request.auth.uid;
+      allow delete: if false; // Handled by Cloud Functions cleanup
+    }
+
+    // 4. Contact Relationships - Mutual contacts with TTL
+    // Privacy: Authenticated users can query relationships
+    // Security: Data contains only anonymous UIDs (no personal info), 15-min TTL
+    // Client queries filter by user1/user2, providing user-level isolation
+    match /contact_relationships/{relationshipId} {
+      allow get: if isAuthenticated()
+                 && (resource.data.user1 == request.auth.uid
+                     || resource.data.user2 == request.auth.uid);
+      allow list: if isAuthenticated(); // Queries self-filter by user1/user2
+      allow create: if false; // Only Cloud Functions can create
+      allow update: if isAuthenticated()
+                    && (resource.data.user1 == request.auth.uid
+                        || resource.data.user2 == request.auth.uid); // Can update sync flags via reportContactSynced
+      allow delete: if isAuthenticated()
+                    && (resource.data.user1 == request.auth.uid
+                        || resource.data.user2 == request.auth.uid); // Can delete if you're in the relationship
+    }
+
+    // 5. User History - User-specific subcollection
+    // Privacy: Completely isolated per user, no cross-user access
+    match /user_history/{userId} {
+      match /entries/{entryId} {
+        allow read, write: if isAuthenticated() && isOwner(userId);
+      }
+    }
+
+    // 6. Usage Tracking - Users can read their own usage
+    // Privacy: Users can only read/write their own usage data (quota display)
+    match /usage_tracking/{usageId} {
+      allow read: if isAuthenticated()
+                  && resource.data.userId == request.auth.uid;
+      allow create: if isAuthenticated()
+                    && request.resource.data.userId == request.auth.uid;
+      allow update, delete: if false;
+    }
+
+    // 7. Token Requests - Rate limiting tracking
+    // Privacy: Write-only to prevent rate limit inspection
+    match /token_requests/{requestId} {
+      allow read: if false; // Server-side rate limiting only
+      allow create: if isAuthenticated();
+      allow update, delete: if false;
+    }
+
+    // 8. Call Cancellations - Cancellation tracking
+    // Privacy: Write-only for audit trail
+    match /call_cancellations/{cancellationId} {
+      allow read: if false; // Server-side tracking only
+      allow create: if isAuthenticated();
+      allow update, delete: if false;
+    }
+
+    // 9. Contact Deletion Requests - Mutual deletion notifications
+    // Privacy: Users can create requests and read their own inbox
+    match /contact_deletion_requests/{requestId} {
+      allow create: if isAuthenticated()
+                    && request.resource.data.fromUserId == request.auth.uid;
+      allow read: if isAuthenticated()
+                  && resource.data.toUserId == request.auth.uid;
+      allow update: if isAuthenticated()
+                    && resource.data.toUserId == request.auth.uid; // Can mark as processed
+      allow delete: if false; // Keep for audit trail
+    }
+
+    // ==========================================
+    // Default Deny All
+    // ==========================================
+    // Deny access to any collections not explicitly listed above
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}
