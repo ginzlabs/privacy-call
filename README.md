@@ -75,29 +75,7 @@ Privacy-first audio calling app with anonymous authentication and end-to-end enc
 
 ---
 
-## 🆕 For New Developers
-
-**Welcome to PrivacyCall!** If you're taking over this project, here's what you need to know:
-
-### First Steps (45-60 minutes)
-1. **Follow the step-by-step checklist**: [SETUP_CHECKLIST.md](./SETUP_CHECKLIST.md)
-   - This interactive checklist walks you through every setup step
-   - Includes verification checkpoints to ensure everything works
-   - Troubleshooting tips for common issues
-
-2. **Connect your own accounts**:
-   - You'll need YOUR OWN Firebase and LiveKit accounts
-   - The repo does NOT include credentials (they've been removed for security)
-   - Template files (`.example`) show you what to configure
-
-3. **What's already done**:
-   - ✅ All code is production-ready
-   - ✅ Comprehensive documentation (README, SETUP_GUIDE, CLAUDE.md, KNOWN_ISSUES)
-   - ✅ Inline code comments explaining complex logic
-   - ✅ Security rules deployed and tested
-   - ✅ Template configuration files for easy setup
-
-### Essential Reading (30-45 minutes)
+## 🆕 Getting Started
 - **[SETUP_CHECKLIST.md](./SETUP_CHECKLIST.md)** - Start here! Step-by-step setup guide
 - **[SETUP_GUIDE.md](./SETUP_GUIDE.md)** - Detailed Firebase/LiveKit account setup
 - **[KNOWN_ISSUES.md](./KNOWN_ISSUES.md)** - Current limitations and workarounds
